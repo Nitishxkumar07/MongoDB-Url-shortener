@@ -1,10 +1,11 @@
 import express from "express";
 import { router as UrlRoute } from "./routes/url.js";
+import { router } from "./routes/staticRouter.js";
 import { connectMongo } from "./connection.js";
 import { URL } from "./model/url.js";
-
+import path from "node:path"
 const app = express();
-const PORT = process.env.PORT || 4000;
+export const PORT = process.env.PORT || 4000;
 
 // Connect to Database
 connectMongo("mongodb://127.0.0.1:27017/short-url")
@@ -15,9 +16,19 @@ connectMongo("mongodb://127.0.0.1:27017/short-url")
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.set("view engine", "ejs")
+app.set("views", path.resolve("./views"))
+
+// app.get('/test',async (req, res) => {
+//   const allUrls = await URL.find({});
+//   return res.render('home', {
+//     urls : allUrls,
+//     port: PORT,
+//   })
+// })
 // Routes
 app.use("/url", UrlRoute);
-
+app.use("/", router)
 app.get("/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
 
