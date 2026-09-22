@@ -1,9 +1,12 @@
 import express from "express";
 import { router as UrlRoute } from "./routes/url.js";
+import { router as userRouter } from "./routes/user.js";
 import { router } from "./routes/staticRouter.js";
 import { connectMongo } from "./connection.js";
 import { URL } from "./model/url.js";
 import path from "node:path"
+import cookieParser from "cookie-parser";
+import { checkForAuthentication, restrictTo } from "./middlewares/auth.js";
 const app = express();
 export const PORT = process.env.PORT || 4000;
 
@@ -15,6 +18,8 @@ connectMongo("mongodb://127.0.0.1:27017/short-url")
 // Middleware for parsing request bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(checkForAuthentication)
 
 app.set("view engine", "ejs")
 app.set("views", path.resolve("./views"))
@@ -27,8 +32,9 @@ app.set("views", path.resolve("./views"))
 //   })
 // })
 // Routes
-app.use("/url", UrlRoute);
-app.use("/", router)
+app.use("/url",  UrlRoute);
+app.use("/user",  userRouter)
+app.use("/",  router)
 app.get("/:shortId", async (req, res) => {
   const shortId = req.params.shortId;
 

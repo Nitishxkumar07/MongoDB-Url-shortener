@@ -6,13 +6,14 @@ export async function handleGenerateNewUrl(req, res) {
     if (!body?.url) {
         return res.status(400).json({ error: "URL is required" });
     }
-
+    
     const shortId = nanoid(8); // Generates an 8-character unique ID
 
     await URL.create({
         shortId: shortId,
         redirectUrl: body.url,
         visitHistory: [],
+        createdBy : req.user._id,
     });
 
     return res.render("home", {

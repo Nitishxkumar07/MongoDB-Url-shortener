@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const urlSchema = new mongoose.Schema({
     shortId :{
@@ -10,7 +10,11 @@ const urlSchema = new mongoose.Schema({
         type : String,
         required : true
     },
-    visitHistory : [{timestamp : {type : Number}}]
+    visitHistory : [{timestamp : {type : Number}}],
+    createdBy:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users",
+    }
 }, {timestamps : true})
 
  export const URL = mongoose.model("url", urlSchema)

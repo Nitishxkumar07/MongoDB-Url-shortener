@@ -5,63 +5,271 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Shortener</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success-bg: #ecfdf5;
+            --success-border: #a7f3d0;
+            --success-text: #065f46;
+            --radius: 10px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: -0.025em;
+        }
+
+        /* Alert Banner */
+        .alert-success {
+            background-color: var(--success-bg);
+            border: 1px solid var(--success-border);
+            color: var(--success-text);
+            padding: 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .alert-success a {
+            color: var(--primary);
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* Form Controls */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (min-width: 640px) {
+            form {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        input[type="url"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="url"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--primary);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Analytics Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9375rem;
+        }
+
+        thead {
+            background-color: #f1f5f9;
+        }
+
+        th {
+            padding: 0.875rem 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .url-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            max-width: 280px;
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+
+        .url-link:hover {
+            text-decoration: underline;
+        }
+
+        .click-badge {
+            display: inline-block;
+            padding: 0.25rem 0.625rem;
+            background-color: #e0e7ff;
+            color: #3730a3;
+            font-weight: 600;
+            font-size: 0.8125rem;
+            border-radius: 9999px;
+        }
+    </style>
 </head>
 
 <body>
-    <h1>URL Shortener</h1>
+    <div class="container">
+        <h1>URL Shortener</h1>
 
-    <!-- Recently Generated Link Alert -->
-    <% if (locals.id) { %>
-        <div>
-            <p>
-                URL Generated: 
-                <a href="/<%= id %>" target="_blank" rel="noopener noreferrer">
-                    http://localhost:<%= locals.PORT%>/<%= id %>
-                </a>
-            </p>
-        </div>
-    <% } %>
+        <!-- Recently Generated Link Alert -->
+        <% if (locals.id) { %>
+            <div class="alert-success">
+                <p>
+                    <strong>URL Generated:</strong> 
+                    <a href="/<%= id %>" target="_blank" rel="noopener noreferrer">
+                        http://localhost:<%= locals.PORT%>/<%= id %>
+                    </a>
+                </p>
+            </div>
+        <% } %>
 
-    <!-- URL Input Form -->
-    <div>
+        <!-- URL Input Form -->
         <form action="/url" method="POST">
-            <label for="url">Enter valid URL:</label>
-            <input type="url" id="url" name="url" placeholder="https://example.com" required>
+            <div class="form-group">
+                <label for="url">Enter valid URL:</label>
+                <input type="url" id="url" name="url" placeholder="https://example.com" required>
+            </div>
             <button type="submit">Generate</button>
         </form>
-    </div>
 
-    <!-- URLs Analytics Table -->
-    <div>
+        <!-- URLs Analytics Table -->
         <% if (locals.urls && urls.length > 0) { %>
-            <table border="1" cellpadding="8" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>S.No</th>
-                        <th>Short ID</th>
-                        <th>Redirect Link</th>
-                        <th>Clicks</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% urls.forEach((url, index) => { %>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
                         <tr>
-                            <td><%= index + 1 %></td>
-                            <td>
-                                <a href="/<%= url.shortId %>" target="_blank" rel="noopener noreferrer">
-                                    <%= url.shortId %>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="<%= url.redirectUrl %>" target="_blank" rel="noopener noreferrer">
-                                    <%= url.redirectUrl %>
-                                </a>
-                            </td>
-                            <td><%= url.visitHistory ? url.visitHistory.length : 0 %></td>
+                            <th>S.No</th>
+                            <th>Short ID</th>
+                            <th>Redirect Link</th>
+                            <th>Clicks</th>
                         </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <% urls.forEach((url, index) => { %>
+                            <tr>
+                                <td><%= index + 1 %></td>
+                                <td>
+                                    <a class="url-link" href="/<%= url.shortId %>" target="_blank" rel="noopener noreferrer">
+                                        <%= url.shortId %>
+                                    </a>
+                                </td>
+                                <td>
+                                    <a class="url-link" href="<%= url.redirectUrl %>" target="_blank" rel="noopener noreferrer">
+                                        <%= url.redirectUrl %>
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="click-badge">
+                                        <%= url.visitHistory ? url.visitHistory.length : 0 %>
+                                    </span>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
         <% } %>
     </div>
 </body>
