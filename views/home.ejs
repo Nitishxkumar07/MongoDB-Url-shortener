@@ -48,6 +48,44 @@
             border: 1px solid var(--border);
         }
 
+        /* User Header Bar */
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .user-info {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-main);
+        }
+
+        .role-badge {
+            font-size: 0.75rem;
+            background-color: var(--border);
+            color: var(--text-muted);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .nav-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-left: 1rem;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
         h1 {
             font-size: 1.875rem;
             font-weight: 700;
@@ -211,66 +249,113 @@
 
 <body>
     <div class="container">
+        <!-- User Bar Header -->
+        <div class="user-header">
+            <div class="user-info">
+                <% if (locals.user) { %>
+                    Logged in as: <strong>
+                        <%= user.name %>
+                    </strong>
+                    <span class="role-badge">
+                        <%= user.role %>
+                    </span>
+                    <% } else { %>
+                        Welcome, Guest
+                        <% } %>
+            </div>
+            <div class="nav-links">
+                <% if (locals.user && user.role==='ADMIN' ) { %>
+                    <a href="/admin/urls">All URLs</a>
+                    <a href="/">My URLs</a>
+                    <% } %>
+                        <% if (locals.user) { %>
+                            <a href="/user/logout">Logout</a>
+                            <% } else { %>
+                                <a href="/login">Login</a>
+                                <a href="/signup">Sign Up</a>
+                                <% } %>
+            </div>
+        </div>
+
         <h1>URL Shortener</h1>
 
         <!-- Recently Generated Link Alert -->
         <% if (locals.id) { %>
             <div class="alert-success">
                 <p>
-                    <strong>URL Generated:</strong> 
-                    <a href="/<%= id %>" target="_blank" rel="noopener noreferrer">
-                        http://localhost:<%= locals.PORT%>/<%= id %>
+                    <strong>URL Generated:</strong>
+                    <a href="<%= id %>" target="_blank" rel="noopener noreferrer">
+                        http://localhost:<%= locals.PORT ? PORT : 4000%>/<%= id %>
                     </a>
                 </p>
             </div>
-        <% } %>
+            <% } %>
 
-        <!-- URL Input Form -->
-        <form action="/url" method="POST">
-            <div class="form-group">
-                <label for="url">Enter valid URL:</label>
-                <input type="url" id="url" name="url" placeholder="https://example.com" required>
-            </div>
-            <button type="submit">Generate</button>
-        </form>
+                <!-- URL Input Form -->
+                <form action="/url" method="POST">
+                    <div class="form-group">
+                        <label for="url">Enter valid URL:</label>
+                        <input type="url" id="url" name="url" placeholder="https://example.com" required>
+                    </div>
+                    <button type="submit">Generate</button>
+                </form>
 
-        <!-- URLs Analytics Table -->
-        <% if (locals.urls && urls.length > 0) { %>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>S.No</th>
-                            <th>Short ID</th>
-                            <th>Redirect Link</th>
-                            <th>Clicks</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% urls.forEach((url, index) => { %>
-                            <tr>
-                                <td><%= index + 1 %></td>
-                                <td>
-                                    <a class="url-link" href="/<%= url.shortId %>" target="_blank" rel="noopener noreferrer">
-                                        <%= url.shortId %>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a class="url-link" href="<%= url.redirectUrl %>" target="_blank" rel="noopener noreferrer">
-                                        <%= url.redirectUrl %>
-                                    </a>
-                                </td>
-                                <td>
-                                    <span class="click-badge">
-                                        <%= url.visitHistory ? url.visitHistory.length : 0 %>
-                                    </span>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
-        <% } %>
+                <!-- URLs Analytics Table -->
+                <% if (locals.urls && urls.length> 0) { %>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Short ID</th>
+                                    <th>Redirect Link</th>
+                                    <th>Clicks</th>
+                                    <th>Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% urls.forEach((url, index)=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= index + 1 %>
+                                        </td>
+                                        <td>
+                                            <a class="url-link" href="/<%= url.shortId %>" target="_blank"
+                                                rel="noopener noreferrer">
+                                                <%= url.shortId %>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a class="url-link" href="<%= url.redirectUrl %>" target="_blank"
+                                                rel="noopener noreferrer">
+                                                <%= url.redirectUrl %>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="click-badge">
+                                                <%= url.visitHistory ? url.visitHistory.length : 0 %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="click-badge">
+                                                <% if (url.createdBy && url.createdBy.name) { %>
+                                                    <%= url.createdBy.name %>
+                                                        <% } else if (locals.user) { %>
+                                                            <%= user.name %>
+                                                                <% } else { %>
+                                                                    Anonymous
+                                                                    <% } %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <p style="text-align: center; color: var(--text-muted); margin-top: 1rem;">No URLs generated
+                            yet.</p>
+                        <% } %>
     </div>
 </body>
 
